@@ -1,7 +1,6 @@
 {
   "name": "metronome",
   "version": "1.0.0",
-  "main": "index.ts",
   "dependencies": {
     "@expo-google-fonts/roboto-mono": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
@@ -30,6 +29,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
+  },
+  "overrides": {
+    "pretty-format": "27.5.1"
   },
   "private": true
 }

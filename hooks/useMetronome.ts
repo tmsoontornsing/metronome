@@ -1,8 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
-
-function playClickSound(isAccent: boolean) {
-  // Audio placeholder - works on physical devices with proper Expo build
-}
+import { useRef, useState, useCallback } from 'react';
 
 export type TimeSignature = '2/4' | '3/4' | '4/4' | '5/4' | '6/8';
 export type Subdivision = 'quarter' | 'eighth' | 'triplet' | 'sixteenth';
@@ -32,6 +28,7 @@ export function useMetronome() {
   const [timeSignature, setTimeSignature] = useState<TimeSignature>('4/4');
   const [subdivision, setSubdivision] = useState<Subdivision>('quarter');
   const [activeBeat, setActiveBeat] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
 
   const bpmRef = useRef(120);
   const isPlayingRef = useRef(false);
@@ -41,12 +38,6 @@ export function useMetronome() {
   const schedulerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeSignatureRef = useRef<TimeSignature>('4/4');
   const subdivisionRef = useRef<Subdivision>('quarter');
-
-  const soundsLoadedRef = useRef(false);
-
-  useEffect(() => {
-    soundsLoadedRef.current = true;
-  }, []);
 
   const setBpm = useCallback((value: number) => {
     const clamped = Math.max(40, Math.min(240, Math.round(value)));
@@ -67,20 +58,20 @@ export function useMetronome() {
     currentSubdivRef.current = 0;
   }, []);
 
-  const schedulerTick = useCallback(() => {
-    if (!soundsLoadedRef.current) return;
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => !prev);
+  }, []);
 
+  const schedulerTick = useCallback(() => {
     const lookaheadTarget = Date.now() + SCHEDULE_AHEAD_MS;
 
     while (nextSubdivTimeRef.current < lookaheadTarget) {
       const fireAt = nextSubdivTimeRef.current - Date.now();
       const beat = currentBeatRef.current;
       const subdiv = currentSubdivRef.current;
-      const isAccent = beat === 0 && subdiv === 0;
       const capturedBeat = beat;
 
       setTimeout(() => {
-        playClickSound(isAccent);
         if (subdiv === 0) {
           setCurrentBeat(capturedBeat);
           setActiveBeat(capturedBeat);
@@ -99,7 +90,7 @@ export function useMetronome() {
         currentBeatRef.current = (currentBeatRef.current + 1) % beatsInMeasure;
       }
     }
-  }, [activeBeat]);
+  }, []);
 
   const start = useCallback(() => {
     if (isPlayingRef.current) return;
@@ -124,7 +115,7 @@ export function useMetronome() {
     }
     setCurrentBeat(0);
     setActiveBeat(0);
-  }, [activeBeat]);
+  }, []);
 
   const toggle = useCallback(() => {
     if (isPlayingRef.current) stop();
@@ -144,5 +135,7 @@ export function useMetronome() {
     setTimeSignature: updateTimeSignature,
     subdivision,
     setSubdivision: updateSubdivision,
+    isMuted,
+    toggleMute,
   };
 }

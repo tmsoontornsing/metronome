@@ -23,6 +23,8 @@ export default function MetronomeScreen() {
     setTimeSignature,
     subdivision,
     setSubdivision,
+    isMuted,
+    toggleMute,
   } = useMetronome();
 
   const beatsInMeasure = (TIME_SIG_BEATS as Record<string, number>)[timeSignature] || 4;
@@ -66,12 +68,30 @@ export default function MetronomeScreen() {
           />
         </View>
 
-        {/* Beat Indicator */}
-        <View style={{ paddingHorizontal: 24, marginBottom: 40 }}>
-          <BeatIndicator
-            totalBeats={beatsInMeasure}
-            activeBeat={activeBeat}
-            primaryColor={theme.colors.primary}
+        {/* Beat Indicator with Mute Button */}
+        <View
+          style={{
+            paddingHorizontal: 24,
+            marginBottom: 40,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <BeatIndicator
+              totalBeats={beatsInMeasure}
+              activeBeat={activeBeat}
+              primaryColor={theme.colors.primary}
+            />
+          </View>
+          <IconButton
+            icon={isMuted ? 'volume-mute' : 'volume-high'}
+            size={24}
+            iconColor={theme.colors.primary}
+            onPress={toggleMute}
+            style={{ margin: -8 }}
           />
         </View>
 
