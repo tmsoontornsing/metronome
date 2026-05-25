@@ -7,14 +7,22 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "platforms": ["ios", "android"],
-    "assetBundlePatterns": ["assets/**/*"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.metronome.app",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
-      }
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      },
+      "appleTeamId": "3UKKM9G2RL"
     },
     "android": {
       "package": "com.metronome.app",
@@ -24,7 +32,11 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,8 +44,7 @@
     "plugins": [
       "expo-router",
       "expo-status-bar",
-      "expo-font",
-      "expo-av"
+      "expo-font"
     ]
   }
 }
