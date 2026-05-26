@@ -1,5 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
-import Sound from 'react-native-sound';
+import { useRef, useState, useCallback } from 'react';
 
 export type TimeSignature = '2/4' | '3/4' | '4/4' | '5/4' | '6/8';
 export type Subdivision = 'quarter' | 'eighth' | 'triplet' | 'sixteenth';
@@ -22,8 +21,6 @@ export const TIME_SIG_BEATS: Record<TimeSignature, number> = {
 const SCHEDULE_AHEAD_MS = 100;
 const TICK_INTERVAL_MS = 25;
 
-Sound.setCategory('Playback', true);
-
 export function useMetronome() {
   const [bpm, setBpmState] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,46 +38,6 @@ export function useMetronome() {
   const schedulerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeSignatureRef = useRef<TimeSignature>('4/4');
   const subdivisionRef = useRef<Subdivision>('quarter');
-  const isMutedRef = useRef(false);
-
-  const soundsRef = useRef<{ accent: Sound | null; normal: Sound | null }>({
-    accent: null,
-    normal: null,
-  });
-
-  useEffect(() => {
-    const accentSound = new Sound('click-accent.wav', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.warn('Failed to load accent sound:', error);
-      }
-    });
-
-    const normalSound = new Sound('click-normal.wav', Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.warn('Failed to load normal sound:', error);
-      }
-    });
-
-    soundsRef.current = { accent: accentSound, normal: normalSound };
-
-    return () => {
-      soundsRef.current.accent?.release();
-      soundsRef.current.normal?.release();
-    };
-  }, []);
-
-  const playClickSound = useCallback((isAccent: boolean) => {
-    if (isMutedRef.current) return;
-
-    const sound = isAccent ? soundsRef.current.accent : soundsRef.current.normal;
-    if (sound) {
-      sound.play((success) => {
-        if (!success) {
-          console.warn('Sound playback failed');
-        }
-      });
-    }
-  }, []);
 
   const setBpm = useCallback((value: number) => {
     const clamped = Math.max(40, Math.min(240, Math.round(value)));
@@ -102,10 +59,7 @@ export function useMetronome() {
   }, []);
 
   const toggleMute = useCallback(() => {
-    setIsMuted((prev) => {
-      isMutedRef.current = !prev;
-      return !prev;
-    });
+    setIsMuted((prev) => !prev);
   }, []);
 
   const schedulerTick = useCallback(() => {
@@ -115,11 +69,9 @@ export function useMetronome() {
       const fireAt = nextSubdivTimeRef.current - Date.now();
       const beat = currentBeatRef.current;
       const subdiv = currentSubdivRef.current;
-      const isAccent = beat === 0 && subdiv === 0;
       const capturedBeat = beat;
 
       setTimeout(() => {
-        playClickSound(isAccent);
         if (subdiv === 0) {
           setCurrentBeat(capturedBeat);
           setActiveBeat(capturedBeat);
@@ -138,7 +90,7 @@ export function useMetronome() {
         currentBeatRef.current = (currentBeatRef.current + 1) % beatsInMeasure;
       }
     }
-  }, [playClickSound]);
+  }, []);
 
   const start = useCallback(() => {
     if (isPlayingRef.current) return;
